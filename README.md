@@ -187,6 +187,6 @@ python -m mlgame -f 120 \
 
 ## 作者
 
-**[你的姓名]**  
+**[藍宥欣]**  
 高中生 AI 開發者 | 2025 FunAI 坦克大作戰冠軍  
-[GitHub](https://github.com/你的帳號) | [Email](mailto:你的信箱)
+[GitHub](https://github.com/acacapcs-star) | [Email](acacapcs@gmail.com)
