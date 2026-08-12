@@ -32,6 +32,19 @@ TankMan RL Agent
 
 ---
 
+## 目前 repo 狀態說明
+
+本 repo 為賽後整理版本，與比賽當日提交版本存在已知落差，在此誠實記錄：
+
+1. `ml_play_model.py` 的目標點目前以隨機座標替代。開發期間此處改過十餘版，比賽當日版本的取法已無法確認，訓練期間的 TensorBoard 記錄亦未保留。
+2. chase 分支目前註解停用，實際執行僅使用 aim 模型；`model_chase` 雖載入 `chase_bad.zip` 但未實際使用。
+3. `train.py` 的 `env_id` 寫死為 `TankManResupply-v0`，aim / chase 模型需手動修改環境後重新訓練。
+4. 每幀的 debug print 尚未移除。
+
+模型檔保留了迭代過程：`aim_bad.zip`、`chase_bad.zip`（2025-02-02）與最終採用的 `best_model.zip`（2025-02-06）。
+
+---
+
 ## 核心設計：三個子模組
 
 ### 1. 瞄準模組（`aim_env.py`）
@@ -118,7 +131,7 @@ python TankMan_student/ml/train.py \
 | `gamma` | 0.1 | 折扣因子（強調即時獎勵） |
 | `net_arch` | [64, 64] | Policy/Value network 隱藏層大小 |
 
-訓練過程使用 TensorBoard 記錄，並透過 `EvalCallback` 自動儲存最佳模型。
+訓練過程使用 TensorBoard 記錄，並透過 `EvalCallback` 自動儲存最佳模型。（註：訓練期間的 TensorBoard log 未保留於本 repo。）
 
 ---
 
