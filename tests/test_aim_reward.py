@@ -28,35 +28,8 @@ SHOOT = 3
 IDLE = 0
 
 
-# ── 被測邏輯：與 AimEnv.cal_angle_reward / cal_shoot_reward 相同 ──
-def cal_angle_reward(obs, action):
-    """obs = [砲管方向 index, 目標方向 index]，兩者皆為 0–7。"""
-    gun, target = obs[0], obs[1]
-
-    # 目標在砲管的右側（順時針 5、6、7 段外）→ 應該往左轉
-    if gun in [(target + x) % TOTAL_SEGMENTS for x in [5, 6, 7]]:
-        return 1.0 if action == AIM_LEFT else (-1.0 if action == AIM_RIGHT else 0.0)
-
-    # 目標在砲管的左側 → 應該往右轉
-    if gun in [(target + x) % TOTAL_SEGMENTS for x in [1, 2, 3]]:
-        return 1.0 if action == AIM_RIGHT else (-1.0 if action == AIM_LEFT else 0.0)
-
-    # 正對面（相差 4 段 = 180 度）：左右皆可，但轉錯沒有意義，給小懲罰
-    if gun == (target + 4) % TOTAL_SEGMENTS and action in (AIM_LEFT, AIM_RIGHT):
-        return -0.5
-
-    return 0.0
-
-
-def cal_shoot_reward(obs, action):
-    gun, target = obs[0], obs[1]
-    if gun == target and action == SHOOT:
-        return 1.0          # 對準了才開火
-    if action == SHOOT:
-        return -1.0         # 沒對準就開火
-    if gun == target:
-        return -0.5         # 對準了卻不開火
-    return 0.0
+# ── 被測邏輯：直接 import 真正在用的那份,不再自己抄一份 ──
+from tankman.reward_logic import cal_angle_reward, cal_shoot_reward
 
 
 def total_reward(obs, action):
@@ -131,19 +104,13 @@ class TestAngleWrapAround(unittest.TestCase):
 
 
 class TestOppositeDirection(unittest.TestCase):
-    """正對面（相差 180 度）：左右轉距離相同，不獎勵也不重罰。"""
+    """正對面(相差 180 度):左右轉距離相同,沒有正確方向,給中性 0。"""
 
-    def test_opposite_penalises_both_turns_slightly(self):
+    def test_opposite_is_neutral(self):
         for target in range(TOTAL_SEGMENTS):
             gun = (target + 4) % TOTAL_SEGMENTS
-            self.assertEqual(cal_angle_reward([gun, target], AIM_LEFT), -0.5)
-            self.assertEqual(cal_angle_reward([gun, target], AIM_RIGHT), -0.5)
-
-    def test_opposite_is_milder_than_wrong_turn(self):
-        """轉錯方向 (-1) 應該比正對面時亂轉 (-0.5) 罰得更重。"""
-        wrong_turn = cal_angle_reward([1, 0], AIM_LEFT)      # -1.0
-        opposite = cal_angle_reward([4, 0], AIM_LEFT)        # -0.5
-        self.assertLess(wrong_turn, opposite)
+            self.assertEqual(cal_angle_reward([gun, target], AIM_LEFT), 0.0)
+            self.assertEqual(cal_angle_reward([gun, target], AIM_RIGHT), 0.0)
 
 
 class TestShootReward(unittest.TestCase):

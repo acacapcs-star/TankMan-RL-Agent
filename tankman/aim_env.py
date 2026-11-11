@@ -14,6 +14,7 @@ from mlgame.utils.enum import get_ai_name
 
 from src.env import SHOOT, AIM_LEFT_CMD, AIM_RIGHT_CMD
 from .base_env import TankManBaseEnv
+from . import reward_logic
 
 WIDTH = 1000 # pixel
 HEIGHT = 600 # pixel
@@ -159,37 +160,10 @@ class ResupplyEnv(TankManBaseEnv):
         return total_reward
 
     def cal_angle_reward(self, obs: dict, action: int) -> float:
+        return reward_logic.cal_angle_reward(obs, action)
 
-        angle_reward: float = 0.0
-
-        # the gun angle is point at the right side of the target
-        if obs[0] in [(obs[1] + x) % 8 for x in [5, 6, 7]] and action == 1: # AIM_LEFT_CMD
-            angle_reward = 1
-        elif obs[0] in [(obs[1] + x) % 8 for x in [5, 6, 7]] and action == 2:   # AIM_RIGHT_CMD
-            angle_reward = -1
-
-        # the gun angle is point at the left side of the target
-        elif obs[0] in [(obs[1] + x) % 8 for x in [1, 2, 3]] and action == 2:   # AIM_RIGHT_CMD
-            angle_reward = 1
-        elif obs[0] in [(obs[1] + x) % 8 for x in [1, 2, 3]] and action == 1:   # AIM_LEFT_CMD
-            angle_reward = -1
-
-        # the gun angle is point at the opposite side of the target
-        elif obs[0] == (obs[1] + 4) % 8 and (action ==1 or action == 2):
-            angle_reward = -0.5
-        
-        return angle_reward
-    
     def cal_shoot_reward(self, obs: dict, action: int) -> float:
-        shoot_reward: float = 0.0
-
-        if obs[0] == obs[1] and action == 3:    # SHOOT
-            shoot_reward = 1
-        elif action == 3:
-            shoot_reward = -1
-        elif obs[0] == obs[1]:
-            shoot_reward = -0.5
-        return shoot_reward
+        return reward_logic.cal_shoot_reward(obs, action)
     
     def _get_reward(self, obs: dict, action: int) -> float:
         # Get observation to retrieve the precomputed angle_to_target
