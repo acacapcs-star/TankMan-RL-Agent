@@ -208,10 +208,8 @@ class ResupplyEnv(TankManBaseEnv):
     
     def _angle_to_index(self, angle: float) -> int:
         angle = (angle + 360) % 360
-
         segment_center = (angle + DEGREES_PER_SEGMENT/2) // DEGREES_PER_SEGMENT
         return int(segment_center % (360 // DEGREES_PER_SEGMENT))
-
 if __name__ == "__main__":
     env = ResupplyEnv(3, 3, 100, randomize=True, render_mode="human")
     for _ in range(10):
